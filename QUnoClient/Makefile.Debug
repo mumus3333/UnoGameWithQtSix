@@ -323,6 +323,7 @@ debug/moc_mainwindow.cpp: mainwindow.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlayout.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlayoutitem.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qgridlayout.h \
+		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QWidget \
 		debug/moc_predefs.h \
 		C:/Qt/6.7.2/mingw_64/bin/moc.exe
 	'C:\Qt\6.7.2\mingw_64\bin\moc.exe' $(DEFINES) --include C:/Users/mumus/Documents/UPV/Sexto/POO/Prueba/QUnoClient/debug/moc_predefs.h -IC:/Qt/6.7.2/mingw_64/mkspecs/win32-g++ -IC:/Users/mumus/Documents/UPV/Sexto/POO/Prueba/QUnoClient -IC:/Users/mumus/Documents/UPV/Sexto/POO/Prueba/QUnoClient -IC:/Qt/6.7.2/mingw_64/include -IC:/Qt/6.7.2/mingw_64/include/QtWidgets -IC:/Qt/6.7.2/mingw_64/include/QtGui -IC:/Qt/6.7.2/mingw_64/include/QtNetwork -IC:/Qt/6.7.2/mingw_64/include/QtCore -IC:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++ -IC:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32 -IC:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward -IC:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include -IC:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed -IC:/msys64/mingw64/x86_64-w64-mingw32/include mainwindow.h -o debug/moc_mainwindow.cpp
@@ -560,6 +561,7 @@ debug/main.o: main.cpp mainwindow.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlayout.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlayoutitem.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qgridlayout.h \
+		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QWidget \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QApplication \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/main.o main.cpp
@@ -778,7 +780,8 @@ debug/mainwindow.o: mainwindow.cpp mainwindow.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qboxlayout.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlayout.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlayoutitem.h \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qgridlayout.h
+		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qgridlayout.h \
+		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/mainwindow.o mainwindow.cpp
 
 debug/moc_mainwindow.o: debug/moc_mainwindow.cpp 

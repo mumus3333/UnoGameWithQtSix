@@ -71,8 +71,9 @@ void MainWindow::on_readyRead()
 
 void MainWindow::on_startButton_clicked()
 {
+    QString startMessage = QString("start %1").arg(playerCount);
     for (QTcpSocket *clientSocket : clients) {
-        clientSocket->write("start");
+        clientSocket->write(startMessage.toUtf8());
     }
-    infoLabel->setText("Game started!");
+    infoLabel->setText("Game started with " + QString::number(playerCount) + " players!");
 }

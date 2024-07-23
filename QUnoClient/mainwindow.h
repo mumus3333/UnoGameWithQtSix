@@ -8,6 +8,9 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QVector>
 
 class MainWindow : public QMainWindow
 {
@@ -29,6 +32,8 @@ private:
     QLabel *statusLabel;
     QTcpSocket *socket;
     QWidget *gameScreen;
+    QVector<QLabel*> playerLabels;
+    void setupGameScreen(int playerCount);
 };
 
 #endif // MAINWINDOW_H

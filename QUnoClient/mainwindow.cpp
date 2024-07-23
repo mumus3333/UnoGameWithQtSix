@@ -51,12 +51,43 @@ void MainWindow::on_connected()
 void MainWindow::on_readyRead()
 {
     QByteArray data = socket->readAll();
-    if (data == "start") {
-        // Crear pantalla negra
-        gameScreen = new QWidget();
-        gameScreen->setStyleSheet("background-color: black;");
-        setCentralWidget(gameScreen);
+    if (data.startsWith("start")) {
+        int playerCount = data.split(' ')[1].toInt();
+        setupGameScreen(playerCount);
     } else {
         statusLabel->setText(data);
     }
+}
+
+void MainWindow::setupGameScreen(int playerCount)
+{
+    // Crear widgets para la pantalla del juego
+    gameScreen = new QWidget(this);
+    QGridLayout *layout = new QGridLayout(gameScreen);
+
+    playerLabels.clear();
+
+    // Crear etiquetas de jugador dinámicamente
+    for (int i = 0; i < playerCount; ++i) {
+        QLabel *playerLabel = new QLabel("Player " + QString::number(i + 1), gameScreen);
+        playerLabels.append(playerLabel);
+    }
+
+    // Añadir widgets al layout basado en la cantidad de jugadores
+    if (playerCount > 0) layout->addWidget(playerLabels[0], 0, 1); // Top
+    if (playerCount > 1) layout->addWidget(playerLabels[1], 1, 0); // Left
+    if (playerCount > 2) layout->addWidget(playerLabels[2], 1, 3); // Right
+    if (playerCount > 3) layout->addWidget(playerLabels[3], 2, 1); // Bottom
+
+    // Crear área de cartas en el tablero
+    QLabel *cartasTablero = new QLabel("cartas que ponen en el tablero", gameScreen);
+    QLabel *comerCartas = new QLabel("Comer cartas", gameScreen);
+
+    // Añadir widgets al layout
+    layout->addWidget(cartasTablero, 1, 1);
+    layout->addWidget(comerCartas, 1, 2);
+
+    // Configurar el layout
+    gameScreen->setLayout(layout);
+    setCentralWidget(gameScreen);
 }
