@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = HIloMasQtWidget
+TARGET = QUnoClient
 INCLUDEPATH += .
 
 QT += core gui widgets network

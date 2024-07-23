@@ -10,6 +10,8 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QVector>
+#include <QStackedWidget>
+#include <QHBoxLayout>
 
 class MainWindow : public QMainWindow
 {
@@ -30,9 +32,14 @@ private:
     QPushButton *connectButton;
     QLabel *statusLabel;
     QTcpSocket *socket;
+    QStackedWidget *stackedWidget;
+    QWidget *connectScreen;
     QWidget *gameScreen;
     QVector<QLabel*> playerLabels;
+    QVector<QLabel*> playerHandCards; // Cartas en la mano del jugador
+    QWidget *playerHandWidget; // Contenedor para las cartas en la mano del jugador
     void setupGameScreen(int playerCount);
+    void displayPlayerHand();
 };
 
 #endif // MAINWINDOW_H

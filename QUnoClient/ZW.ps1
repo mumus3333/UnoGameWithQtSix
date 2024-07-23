@@ -20,7 +20,7 @@ $sources = Get-ChildItem -Path . -Filter *.cpp | ForEach-Object { $_.Name }
 # Crear el contenido del archivo .pro
 $proContent = @"
 TEMPLATE = app
-TARGET = HIloMasQtWidget
+TARGET = $($NombreCarpeta)
 INCLUDEPATH += .
 
 QT += core gui widgets network
