@@ -24,4 +24,6 @@ Para ejecutar el proyecto en Linux, utiliza el script `ZW.ps1`.
 
    ```sh
    ./ZW.ps1
+###
+NOTA | Se proporciona los script en las carpetas
    
