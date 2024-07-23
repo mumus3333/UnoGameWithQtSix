@@ -25,5 +25,5 @@ Para ejecutar el proyecto en Linux, utiliza el script `ZW.ps1`.
    ```sh
    ./ZW.ps1
 ###
-NOTA | Se proporciona los script en las carpetas
+NOTA | Se proporciona los script en las carpetas, en el caso de windows se deberan editar las variables de entorno en el caso de gcc, make, qmake y cargar los sobrenombres a la configuracion del perfil de powershell
    
