@@ -9,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QVector>
 
 class MainWindow : public QMainWindow
