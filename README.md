@@ -14,4 +14,14 @@ Para ejecutar el proyecto en Linux, utiliza el script `Z.sh`.
 
    ```sh
    ./Z.sh
+### En Windows
 
+Para ejecutar el proyecto en Linux, utiliza el script `ZW.ps1`.
+
+1. Abre Powershell.
+2. Navega al directorio del proyecto.
+3. Ejecuta el siguiente comando:
+
+   ```sh
+   ./ZW.ps1
+   
