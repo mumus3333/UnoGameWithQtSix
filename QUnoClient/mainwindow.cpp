@@ -51,5 +51,12 @@ void MainWindow::on_connected()
 void MainWindow::on_readyRead()
 {
     QByteArray data = socket->readAll();
-    statusLabel->setText(data);
+    if (data == "start") {
+        // Crear pantalla negra
+        gameScreen = new QWidget();
+        gameScreen->setStyleSheet("background-color: black;");
+        setCentralWidget(gameScreen);
+    } else {
+        statusLabel->setText(data);
+    }
 }

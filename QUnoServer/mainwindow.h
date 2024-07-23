@@ -6,7 +6,10 @@
 #include <QTcpSocket>
 #include <QTextEdit>
 #include <QLabel>
+#include <QPushButton>
 #include <QVBoxLayout>
+#include <QVector>
+#include <QMap>
 
 class MainWindow : public QMainWindow
 {
@@ -19,13 +22,17 @@ public:
 private slots:
     void on_newConnection();
     void on_readyRead();
+    void on_startButton_clicked();
 
 private:
-    QTextEdit *connectionsTextEdit;
-    QLabel *statusLabel;
-    QLabel *ipLabel;
+    QTextEdit *playersTextEdit;
+    QLabel *infoLabel;
+    QLabel *headerLabel;
+    QPushButton *startButton;
     QTcpServer *server;
-    QList<QTcpSocket *> clients;
+    QVector<QTcpSocket*> clients;
+    QMap<QTcpSocket*, QString> playerInfo;
+    int playerCount;
 };
 
 #endif // MAINWINDOW_H

@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QWidget>
 
 class MainWindow : public QMainWindow
 {
@@ -27,6 +28,7 @@ private:
     QPushButton *connectButton;
     QLabel *statusLabel;
     QTcpSocket *socket;
+    QWidget *gameScreen;
 };
 
 #endif // MAINWINDOW_H
