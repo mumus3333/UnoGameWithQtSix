@@ -1,10 +1,11 @@
 #include "mainwindow.h"
+#include "label.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , socket(new QTcpSocket(this))
 {
-    // Configurar el tamaño de la ventana principal
+    //tamaño de ventana principal
     setFixedSize(1280, 720);
 
     // Crear widgets
@@ -61,11 +62,25 @@ void MainWindow::on_readyRead()
     QByteArray data = socket->readAll();
     if (data.startsWith("start")) {
         int playerCount = data.split(' ')[1].toInt();
-        setupGameScreen(playerCount);
-        stackedWidget->setCurrentWidget(gameScreen);
+        showRulesScreen();
+        QTimer::singleShot(5000, this, [this, playerCount] {
+            setupGameScreen(playerCount);
+            stackedWidget->setCurrentWidget(gameScreen);
+        });
     } else {
         statusLabel->setText(data);
     }
+}
+
+void MainWindow::showRulesScreen()
+{
+    rulesScreen = new QWidget(this);
+    QVBoxLayout *rulesLayout = new QVBoxLayout(rulesScreen);
+    Label *rulesLabel = new Label(rulesScreen);
+    rulesLayout->addWidget(rulesLabel);
+    rulesScreen->setLayout(rulesLayout);
+    stackedWidget->addWidget(rulesScreen);
+    stackedWidget->setCurrentWidget(rulesScreen);
 }
 
 void MainWindow::setupGameScreen(int playerCount)

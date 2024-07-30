@@ -12,6 +12,7 @@
 #include <QVector>
 #include <QStackedWidget>
 #include <QHBoxLayout>
+#include <QTimer>  // Add QTimer header here
 
 class MainWindow : public QMainWindow
 {
@@ -25,6 +26,7 @@ private slots:
     void on_connectButton_clicked();
     void on_connected();
     void on_readyRead();
+    void showRulesScreen();
 
 private:
     QLineEdit *serverIpLineEdit;
@@ -35,6 +37,7 @@ private:
     QStackedWidget *stackedWidget;
     QWidget *connectScreen;
     QWidget *gameScreen;
+    QWidget *rulesScreen; // Declare rulesScreen here
     QVector<QLabel*> playerLabels;
     QVector<QLabel*> playerHandCards; // Cartas en la mano del jugador
     QWidget *playerHandWidget; // Contenedor para las cartas en la mano del jugador
@@ -43,3 +46,4 @@ private:
 };
 
 #endif // MAINWINDOW_H
+
