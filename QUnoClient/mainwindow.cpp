@@ -61,6 +61,7 @@ void MainWindow::on_readyRead()
 {
     QByteArray data = socket->readAll();
     QDataStream in(&data, QIODevice::ReadOnly);
+    
     QString tablero;
     QVector<QVector<QString>> hands;
     int turno;
@@ -69,7 +70,6 @@ void MainWindow::on_readyRead()
     in >> hands;
     in >> turno;
 
-    // Actualizar la interfaz de usuario con el nuevo estado del juego
     updateGameScreen(tablero, hands, turno);
 }
 
@@ -121,6 +121,7 @@ void MainWindow::setupGameScreen(int playerCount)
         playerLayout->addWidget(turnLabel);
 
         layout->addLayout(playerLayout, i, 0);
+        playerHands[i] = mazo->repartirCartas(7);
     }
 
     // Crear botones para las acciones del jugador
@@ -139,12 +140,12 @@ void MainWindow::setupGameScreen(int playerCount)
     playCardButton->setEnabled(false);
     passTurnButton->setEnabled(false);
 
-    // Añadir espacio para la carta del tablero
-    cartaTablero = new QLabel(this);
+    // Seleccionar una carta aleatoria para el tablero
+    cartaTablero = new QLabel(this); // Crear un QLabel
     cartaTablero->setAlignment(Qt::AlignCenter);
     layout->addWidget(cartaTablero, 1, 1);
 
-    playerHandWidget = new QWidget();
+    displayPlayerHand();
     layout->addWidget(playerHandWidget, playerCount + 1, 0);
 
     gameScreen->setLayout(layout);
@@ -165,8 +166,8 @@ void MainWindow::startTurn()
     turnLabels[currentPlayerIndex]->setText("Es tu turno");
 
     // Habilitar los botones solo si es el turno del jugador correspondiente
-    playCardButton->setEnabled(currentPlayerIndex == 0); // Solo habilitado si es tu turno
-    passTurnButton->setEnabled(currentPlayerIndex == 0);
+    playCardButton->setEnabled(true);
+    passTurnButton->setEnabled(true);
 }
 
 void MainWindow::endTurn()
@@ -210,6 +211,7 @@ void MainWindow::displayPlayerHand()
         handLayout->addWidget(cardButton);
         playerHandCards.append(cardButton);
     }
+    playerHandWidget = new QWidget();
     playerHandWidget->setLayout(handLayout);
 }
 
@@ -229,6 +231,8 @@ void MainWindow::playCard(int cardIndex)
     cartaTablero->setText(playerHands[currentPlayerIndex][cardIndex]);
 
     // Eliminar la carta de la mano del jugador
+    delete playerHandCards[cardIndex];
+    playerHandCards.removeAt(cardIndex);
     playerHands[currentPlayerIndex].removeAt(cardIndex);
 
     // Actualizar la mano del jugador
@@ -238,11 +242,12 @@ void MainWindow::playCard(int cardIndex)
     endTurn();
 }
 
-void MainWindow::updateGameScreen(const QString &tablero, const QVector<QVector<QString>> &hands, int turno)
+void MainWindow::updateGameScreen(const QString &tablero, QVector<QVector<QString>> &hands, int turno)
 {
     cartaTablero->setText(tablero);
     playerHands = hands;
     currentPlayerIndex = turno;
+
     displayPlayerHand();
     startTurn();
 }
