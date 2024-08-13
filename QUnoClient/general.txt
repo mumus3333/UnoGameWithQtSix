@@ -1,0 +1,16 @@
+Constructor Mazo::Mazo:
+
+Llama a la función cargarCartas() en el constructor para asegurarse de que las cartas estén cargadas en el vector cartas cuando se cree un objeto Mazo.
+Método cargarCartas():
+
+Este método carga las imágenes de las cartas UNO en el vector cartas.
+Se asume que las imágenes siguen un esquema de nombres específico y se almacenan en una carpeta images dentro del proyecto.
+Se agregan cartas de diferentes colores y tipos, incluyendo las cartas numeradas, de acción (como skip, reverse, draw2), y las cartas especiales (wild, wild_draw4).
+Método repartirCartas(int cantidadCartas):
+
+Este método reparte un número específico de cartas aleatorias, devolviendo un QVector<QLabel*> con las imágenes de las cartas que se le han asignado al jugador.
+Las cartas repartidas se eliminan del mazo para evitar duplicados.
+Método tomarCarta():
+
+Permite que un jugador tome una carta del mazo. Si el mazo está vacío, devuelve nullptr.
+La carta tomada se elimina del mazo para mantener la consistencia del juego.

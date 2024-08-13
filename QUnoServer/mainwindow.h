@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QVector>
 #include <QMap>
+#include "mazo.h"
 
 class MainWindow : public QMainWindow
 {
@@ -33,6 +34,15 @@ private:
     QVector<QTcpSocket*> clients;
     QMap<QTcpSocket*, QString> playerInfo;
     int playerCount;
+
+    // Estado del juego
+    Mazo mazo;
+    QLabel *cartaTablero;
+    QVector<QVector<QString>> playerHands; // Almacena las cartas de cada jugador
+    int currentPlayerIndex;
+
+    void broadcastGameState();
+    void processClientMessage(QTcpSocket *clientSocket, const QByteArray &message);
 };
 
 #endif // MAINWINDOW_H

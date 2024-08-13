@@ -4,7 +4,7 @@ INCLUDEPATH += .
 
 QT += core gui widgets network
 
-HEADERS += mainwindow.h
-SOURCES += main.cpp mainwindow.cpp
+HEADERS += label.h mainwindow.h mazo.h
+SOURCES += label.cpp main.cpp mainwindow.cpp mazo.cpp
 
 CONFIG += c++17

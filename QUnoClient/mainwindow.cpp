@@ -1,19 +1,22 @@
 #include "mainwindow.h"
+#include "label.h"
+#include <QMessageBox>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , socket(new QTcpSocket(this))
+    , mazo(new Mazo(this))
 {
-    // Configurar el tamaño de la ventana principal
+    // Tamaño de ventana principal
     setFixedSize(1280, 720);
 
-    // Crear widgets
+    // Crear widgets para la pantalla de conexión
     serverIpLineEdit = new QLineEdit("192.168.0.13", this); // IP predefinida del servidor
     playerNameLineEdit = new QLineEdit(this);
     connectButton = new QPushButton("Connect", this);
     statusLabel = new QLabel("Status: Not connected", this);
 
-    // Crear layout para la pantalla de conexión
     QVBoxLayout *connectLayout = new QVBoxLayout();
     connectLayout->addWidget(new QLabel("Server IP:", this));
     connectLayout->addWidget(serverIpLineEdit);
@@ -22,11 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     connectLayout->addWidget(connectButton);
     connectLayout->addWidget(statusLabel);
 
-    // Crear widget para la pantalla de conexión
     connectScreen = new QWidget(this);
     connectScreen->setLayout(connectLayout);
 
-    // Crear stacked widget para cambiar entre pantallas
     stackedWidget = new QStackedWidget(this);
     stackedWidget->addWidget(connectScreen);
 
@@ -59,82 +60,189 @@ void MainWindow::on_connected()
 void MainWindow::on_readyRead()
 {
     QByteArray data = socket->readAll();
-    if (data.startsWith("start")) {
-        int playerCount = data.split(' ')[1].toInt();
-        setupGameScreen(playerCount);
-        stackedWidget->setCurrentWidget(gameScreen);
-    } else {
-        statusLabel->setText(data);
-    }
+    QDataStream in(&data, QIODevice::ReadOnly);
+    QString tablero;
+    QVector<QVector<QString>> hands;
+    int turno;
+
+    in >> tablero;
+    in >> hands;
+    in >> turno;
+
+    // Actualizar la interfaz de usuario con el nuevo estado del juego
+    updateGameScreen(tablero, hands, turno);
+}
+
+void MainWindow::showRulesScreen()
+{
+    rulesScreen = new QWidget(this);
+    QVBoxLayout *rulesLayout = new QVBoxLayout(rulesScreen);
+
+    Label *rulesLabel = new Label(rulesScreen);
+    rulesLayout->addWidget(rulesLabel);
+
+    rulesScreen->setLayout(rulesLayout);
+    stackedWidget->addWidget(rulesScreen);
+    stackedWidget->setCurrentWidget(rulesScreen);
+}
+
+QString getColor(const QString &card) {
+    return card.split(" ")[0];
+}
+
+QString getNumber(const QString &card) {
+    return card.split(" ").size() > 1 ? card.split(" ")[1] : "";
 }
 
 void MainWindow::setupGameScreen(int playerCount)
 {
+    totalPlayers = playerCount;
+    currentPlayerIndex = 0;
+
     // Crear widgets para la pantalla del juego
     gameScreen = new QWidget(this);
     QGridLayout *layout = new QGridLayout(gameScreen);
 
     playerLabels.clear();
+    turnLabels.clear();  // Asegúrate de que turnLabels esté vacío
+    playerHands.resize(playerCount);
 
     // Crear etiquetas de jugador dinámicamente
     for (int i = 0; i < playerCount; ++i) {
-        QLabel *playerLabel = new QLabel("Player " + QString::number(i + 1), gameScreen);
+        QLabel *playerLabel = new QLabel("Jugador " + QString::number(i + 1), gameScreen);
         playerLabel->setAlignment(Qt::AlignCenter);
         playerLabels.append(playerLabel);
+
+        QLabel *turnLabel = new QLabel("", gameScreen);
+        turnLabels.append(turnLabel);
+
+        QHBoxLayout *playerLayout = new QHBoxLayout();
+        playerLayout->addWidget(playerLabel);
+        playerLayout->addWidget(turnLabel);
+
+        layout->addLayout(playerLayout, i, 0);
     }
 
-    // Añadir widgets al layout basado en la cantidad de jugadores
-    if (playerCount == 2) {
-        layout->addWidget(playerLabels[1], 0, 1); // Top (Player 2)
-        QLabel *cartasTablero = new QLabel("Cartas en el tablero", gameScreen);
-        cartasTablero->setAlignment(Qt::AlignCenter);
-        QLabel *comerCartas = new QLabel("Comer cartas", gameScreen);
-        comerCartas->setAlignment(Qt::AlignCenter);
-        layout->addWidget(cartasTablero, 1, 1);
-        layout->addWidget(comerCartas, 1, 2);
-        displayPlayerHand();
-        layout->addWidget(playerHandWidget, 2, 1); // Bottom (Player 1)
-    } else if (playerCount == 3) {
-        layout->addWidget(playerLabels[1], 0, 1); // Top (Player 2)
-        layout->addWidget(playerLabels[2], 1, 0); // Left (Player 3)
-        QLabel *cartasTablero = new QLabel("Cartas en el tablero", gameScreen);
-        cartasTablero->setAlignment(Qt::AlignCenter);
-        QLabel *comerCartas = new QLabel("Comer cartas", gameScreen);
-        comerCartas->setAlignment(Qt::AlignCenter);
-        layout->addWidget(cartasTablero, 1, 1);
-        layout->addWidget(comerCartas, 1, 2);
-        displayPlayerHand();
-        layout->addWidget(playerHandWidget, 2, 1); // Bottom (Player 1)
-    } else if (playerCount == 4) {
-        layout->addWidget(playerLabels[1], 0, 1); // Top (Player 2)
-        layout->addWidget(playerLabels[2], 1, 0); // Left (Player 3)
-        layout->addWidget(playerLabels[3], 1, 2); // Right (Player 4)
-        QLabel *cartasTablero = new QLabel("Cartas en el tablero", gameScreen);
-        cartasTablero->setAlignment(Qt::AlignCenter);
-        QLabel *comerCartas = new QLabel("Comer cartas", gameScreen);
-        comerCartas->setAlignment(Qt::AlignCenter);
-        layout->addWidget(cartasTablero, 1, 1);
-        layout->addWidget(comerCartas, 1, 2);
-        displayPlayerHand();
-        layout->addWidget(playerHandWidget, 2, 1); // Bottom (Player 1)
-    }
+    // Crear botones para las acciones del jugador
+    playCardButton = new QPushButton("Jugar Carta", gameScreen);
+    passTurnButton = new QPushButton("Pasar Turno", gameScreen);
 
-    // Configurar el layout
+    // Añadir los botones al layout
+    layout->addWidget(playCardButton, playerCount + 2, 0);
+    layout->addWidget(passTurnButton, playerCount + 2, 1);
+
+    // Conectar los botones a las funciones correspondientes
+    connect(playCardButton, &QPushButton::clicked, this, &MainWindow::playerAction);
+    connect(passTurnButton, &QPushButton::clicked, this, &MainWindow::endTurn);
+
+    // Deshabilitar los botones inicialmente
+    playCardButton->setEnabled(false);
+    passTurnButton->setEnabled(false);
+
+    // Añadir espacio para la carta del tablero
+    cartaTablero = new QLabel(this);
+    cartaTablero->setAlignment(Qt::AlignCenter);
+    layout->addWidget(cartaTablero, 1, 1);
+
+    playerHandWidget = new QWidget();
+    layout->addWidget(playerHandWidget, playerCount + 1, 0);
+
     gameScreen->setLayout(layout);
     stackedWidget->addWidget(gameScreen);
+
+    // Iniciar el primer turno
+    startTurn();
+}
+
+void MainWindow::startTurn()
+{
+    // Restablecer los QLabel de turnos para todos los jugadores
+    for (int i = 0; i < totalPlayers; ++i) {
+        turnLabels[i]->setText("");
+    }
+
+    // Mostrar quién tiene el turno actualmente
+    turnLabels[currentPlayerIndex]->setText("Es tu turno");
+
+    // Habilitar los botones solo si es el turno del jugador correspondiente
+    playCardButton->setEnabled(currentPlayerIndex == 0); // Solo habilitado si es tu turno
+    passTurnButton->setEnabled(currentPlayerIndex == 0);
+}
+
+void MainWindow::endTurn()
+{
+    // Deshabilitar los botones cuando el turno termina
+    playCardButton->setEnabled(false);
+    passTurnButton->setEnabled(false);
+
+    // Finaliza el turno del jugador actual
+    currentPlayerIndex = (currentPlayerIndex + 1) % totalPlayers;
+
+    // Inicia el turno del siguiente jugador
+    startTurn();
 }
 
 void MainWindow::displayPlayerHand()
 {
-    // Crear etiquetas para las cartas en la mano del jugador
     playerHandCards.clear();
     QHBoxLayout *handLayout = new QHBoxLayout();
-    for (int i = 0; i < 7; ++i) { // Suponiendo que cada jugador comienza con 7 cartas
-        QLabel *cardLabel = new QLabel("Card " + QString::number(i + 1), this);
-        cardLabel->setAlignment(Qt::AlignCenter);
-        playerHandCards.append(cardLabel);
-        handLayout->addWidget(cardLabel);
+
+    QString tableroColor = getColor(cartaTablero->text());
+    QString tableroNumber = getNumber(cartaTablero->text());
+
+    for (int i = 0; i < playerHands[currentPlayerIndex].size(); ++i) {
+        QString cardText = playerHands[currentPlayerIndex][i];
+        QPushButton *cardButton = new QPushButton(cardText, this);
+
+        QString cardColor = getColor(cardText);
+        QString cardNumber = getNumber(cardText);
+
+        // Habilitar la carta solo si coincide en color o número, o si es "Wild"
+        if (cardColor == tableroColor || cardNumber == tableroNumber || cardColor == "Wild") {
+            cardButton->setEnabled(true);
+            connect(cardButton, &QPushButton::clicked, this, [this, i]() {
+                this->playCard(i);
+            });
+        } else {
+            cardButton->setEnabled(false); // Deshabilitar la carta si no coincide
+        }
+
+        handLayout->addWidget(cardButton);
+        playerHandCards.append(cardButton);
     }
-    playerHandWidget = new QWidget();
     playerHandWidget->setLayout(handLayout);
+}
+
+void MainWindow::playerAction()
+{
+    // Ejemplo simple: realizar una acción y mostrar un mensaje
+    QString currentPlayerName = "Jugador " + QString::number(currentPlayerIndex + 1);
+    QMessageBox::information(this, "Acción", currentPlayerName + " ha realizado una acción.");
+
+    // Después de que el jugador haya realizado su acción, pasa al siguiente turno
+    endTurn();
+}
+
+void MainWindow::playCard(int cardIndex)
+{
+    // Mover la carta seleccionada al tablero
+    cartaTablero->setText(playerHands[currentPlayerIndex][cardIndex]);
+
+    // Eliminar la carta de la mano del jugador
+    playerHands[currentPlayerIndex].removeAt(cardIndex);
+
+    // Actualizar la mano del jugador
+    displayPlayerHand();
+
+    // Finaliza el turno después de jugar la carta
+    endTurn();
+}
+
+void MainWindow::updateGameScreen(const QString &tablero, const QVector<QVector<QString>> &hands, int turno)
+{
+    cartaTablero->setText(tablero);
+    playerHands = hands;
+    currentPlayerIndex = turno;
+    displayPlayerHand();
+    startTurn();
 }

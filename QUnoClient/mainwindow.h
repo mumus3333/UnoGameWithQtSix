@@ -3,43 +3,69 @@
 
 #include <QMainWindow>
 #include <QTcpSocket>
-#include <QLineEdit>
-#include <QPushButton>
 #include <QLabel>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QGridLayout>
-#include <QVector>
+#include <QPushButton>
+#include <QLineEdit>
 #include <QStackedWidget>
+#include <QVBoxLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
+#include <QTimer>
+#include <QVector>
+#include <QMessageBox>
+#include "mazo.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
     void on_connectButton_clicked();
     void on_connected();
     void on_readyRead();
+    void showRulesScreen();
+    void setupGameScreen(int playerCount);
+    void displayPlayerHand();
+    void playerAction(); // Ejemplo de una acción que realiza el jugador
+    void playCard(int cardIndex); // Función para jugar una carta específica
 
 private:
+    QTcpSocket *socket;
     QLineEdit *serverIpLineEdit;
     QLineEdit *playerNameLineEdit;
     QPushButton *connectButton;
     QLabel *statusLabel;
-    QTcpSocket *socket;
-    QStackedWidget *stackedWidget;
     QWidget *connectScreen;
+    QStackedWidget *stackedWidget;
+    QWidget *rulesScreen;
     QWidget *gameScreen;
-    QVector<QLabel*> playerLabels;
-    QVector<QLabel*> playerHandCards; // Cartas en la mano del jugador
-    QWidget *playerHandWidget; // Contenedor para las cartas en la mano del jugador
-    void setupGameScreen(int playerCount);
-    void displayPlayerHand();
+
+    Mazo *mazo; // Instancia de la clase Mazo
+    QVector<QVector<QString>> playerHands; // Almacena las cartas de cada jugador como texto
+    QVector<QLabel*> playerLabels; // Almacena las etiquetas de los jugadores
+    QVector<QLabel*> turnLabels; // Vector para almacenar los QLabel de turnos
+    QWidget *playerHandWidget; // Widget para mostrar las cartas del jugador
+    QVector<QPushButton*> playerHandCards; // Botones para representar las cartas del jugador
+    QString cartaTablero; // Carta actual en el tablero
+
+    // Botones de acción
+    QPushButton *playCardButton;  // Botón para jugar una carta
+    QPushButton *passTurnButton;  // Botón para pasar el turno
+
+    // Variables para manejar los turnos
+    int currentPlayerIndex;  // Índice del jugador cuyo turno es actualmente
+    int totalPlayers;        // Número total de jugadores
+
+    // Métodos para manejar los turnos
+    void startTurn();  // Inicia el turno del jugador actual
+    void endTurn();    // Finaliza el turno del jugador actual y pasa al siguiente
+
+    // Método para actualizar la pantalla del juego con el estado recibido del servidor
+    void updateGameScreen(const QString &tablero, const QVector<QVector<QString>> &hands, int turno);
 };
 
 #endif // MAINWINDOW_H
