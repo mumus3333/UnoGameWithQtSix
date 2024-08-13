@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QNetworkInterface>
+#include <QDataStream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -58,7 +59,7 @@ void MainWindow::on_newConnection()
     connect(clientSocket, &QTcpSocket::readyRead, this, &MainWindow::on_readyRead);
 
     // Repartir cartas al nuevo jugador
-    playerHands.append(mazo.repartirCartas(7));
+    playerHands.append(mazo.repartirCartas(7)); // Asegúrate de que esto devuelve QVector<QString>
     QString playerInfoStr = QString("Player %1 | %2")
                                 .arg(playerCount)
                                 .arg(clientSocket->peerAddress().toString());
@@ -67,7 +68,7 @@ void MainWindow::on_newConnection()
 
     // Iniciar el juego cuando todos los jugadores están conectados
     if (playerCount == 4) {
-        cartaTablero = mazo.tomarCarta();
+        cartaTablero = mazo.tomarCarta(); // Asigna directamente la carta como QString
         broadcastGameState();
     }
 }
@@ -83,6 +84,21 @@ void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray
 {
     // Aquí se procesa el mensaje del cliente (por ejemplo, jugar una carta)
     // Actualizar el estado del juego y enviar la actualización a todos los clientes
+
+    // Supongamos que el mensaje es simplemente el índice de la carta jugada
+    QByteArray msg = message;  // Quita la const para poder usar QDataStream
+    QDataStream in(&msg, QIODevice::ReadOnly);
+    int cardIndex;
+    in >> cardIndex;
+
+    // Actualizar el estado del juego: carta jugada y mano del jugador
+    cartaTablero = playerHands[currentPlayerIndex][cardIndex];
+    playerHands[currentPlayerIndex].removeAt(cardIndex);
+
+    // Cambiar de turno
+    currentPlayerIndex = (currentPlayerIndex + 1) % clients.size();
+
+    // Sincronizar con los clientes
     broadcastGameState();
 }
 
@@ -93,7 +109,7 @@ void MainWindow::on_startButton_clicked()
         return;
     }
     infoLabel->setText("Game started with " + QString::number(playerCount) + " players!");
-    cartaTablero = mazo.tomarCarta();
+    cartaTablero = mazo.tomarCarta(); // Asigna directamente la carta como QString
     broadcastGameState();
 }
 
@@ -101,9 +117,9 @@ void MainWindow::broadcastGameState()
 {
     QByteArray gameState;
     QDataStream out(&gameState, QIODevice::WriteOnly);
-    out << cartaTablero->text(); // Enviar la carta del tablero
-    out << playerHands;          // Enviar todas las manos de los jugadores
-    out << currentPlayerIndex;   // Enviar el turno actual
+    out << cartaTablero; // Enviar la carta del tablero como QString
+    out << playerHands;  // Enviar todas las manos de los jugadores
+    out << currentPlayerIndex; // Enviar el turno actual
 
     for (QTcpSocket *client : clients) {
         client->write(gameState);

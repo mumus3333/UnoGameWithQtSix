@@ -37,7 +37,7 @@ private:
 
     // Estado del juego
     Mazo mazo;
-    QLabel *cartaTablero;
+    QString cartaTablero; // Definido como QString
     QVector<QVector<QString>> playerHands; // Almacena las cartas de cada jugador
     int currentPlayerIndex;
 

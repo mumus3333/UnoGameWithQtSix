@@ -348,6 +348,7 @@ release/moc_mainwindow.cpp: mainwindow.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		mazo.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QWidget \
+		C:/Qt/6.7.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QRandomGenerator \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qrandom.h \
 		release/moc_predefs.h \
@@ -543,11 +544,7 @@ release/moc_mazo.cpp: mazo.h \
 		C:/Qt/6.7.2/mingw_64/include/QtGui/qguiapplication_platform.h \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QVector \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qvector.h \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QLabel \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlabel.h \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qframe.h \
-		C:/Qt/6.7.2/mingw_64/include/QtGui/qpicture.h \
-		C:/Qt/6.7.2/mingw_64/include/QtGui/qtextdocument.h \
+		C:/Qt/6.7.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QRandomGenerator \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qrandom.h \
 		release/moc_predefs.h \
@@ -1002,6 +999,7 @@ release/main.o: main.cpp mainwindow.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		mazo.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QWidget \
+		C:/Qt/6.7.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QRandomGenerator \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qrandom.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QApplication \
@@ -1238,6 +1236,7 @@ release/mainwindow.o: mainwindow.cpp mainwindow.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		mazo.h \
 		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QWidget \
+		C:/Qt/6.7.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QRandomGenerator \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qrandom.h \
 		label.h \
@@ -1433,11 +1432,7 @@ release/mazo.o: mazo.cpp mazo.h \
 		C:/Qt/6.7.2/mingw_64/include/QtGui/qguiapplication_platform.h \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QVector \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qvector.h \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/QLabel \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qlabel.h \
-		C:/Qt/6.7.2/mingw_64/include/QtWidgets/qframe.h \
-		C:/Qt/6.7.2/mingw_64/include/QtGui/qpicture.h \
-		C:/Qt/6.7.2/mingw_64/include/QtGui/qtextdocument.h \
+		C:/Qt/6.7.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/QRandomGenerator \
 		C:/Qt/6.7.2/mingw_64/include/QtCore/qrandom.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/mazo.o mazo.cpp
