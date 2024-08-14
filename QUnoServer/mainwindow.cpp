@@ -78,11 +78,16 @@ void MainWindow::on_newConnection() {
 
 
 
-
 void MainWindow::on_readyRead()
 {
-    QByteArray data = socket->readAll();
-    qDebug() << "Received data from server:" << data;
+    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
+    if (!clientSocket) {
+        qDebug() << "Ready read called but sender is not a QTcpSocket.";
+        return;
+    }
+
+    QByteArray data = clientSocket->readAll();
+    qDebug() << "Received data from client:" << data;
 
     QDataStream in(&data, QIODevice::ReadOnly);
     
@@ -98,8 +103,6 @@ void MainWindow::on_readyRead()
     qDebug() << "Manos de jugadores:" << hands;
     qDebug() << "Turno actual:" << turno;
 
-    // Aquí puedes agregar validaciones adicionales para verificar si los datos son válidos
-
     if (!tablero.isEmpty() && !hands.isEmpty()) {
         updateGameScreen(tablero, hands, turno);
     } else {
@@ -109,7 +112,7 @@ void MainWindow::on_readyRead()
 
 
 void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray &message) {
-    QByteArray data = message; // Copiamos el mensaje a una variable no constante
+    QByteArray data = message;
     QDataStream in(&data, QIODevice::ReadOnly);
     
     int cardIndex;
@@ -132,6 +135,7 @@ void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray
 }
 
 
+
 void MainWindow::on_startButton_clicked()
 {
     if (playerCount < 2) {
@@ -148,9 +152,9 @@ void MainWindow::broadcastGameState()
 {
     QByteArray gameState;
     QDataStream out(&gameState, QIODevice::WriteOnly);
-    out << cartaTablero; // Enviar la carta del tablero como QString
-    out << playerHands;  // Enviar todas las manos de los jugadores
-    out << currentPlayerIndex; // Enviar el turno actual
+    out << cartaTablero;
+    out << playerHands;
+    out << currentPlayerIndex;
 
     for (QTcpSocket *client : clients) {
         if (client->state() == QAbstractSocket::ConnectedState) {
@@ -167,6 +171,7 @@ void MainWindow::broadcastGameState()
         }
     }
 }
+
 
 
 //lll
