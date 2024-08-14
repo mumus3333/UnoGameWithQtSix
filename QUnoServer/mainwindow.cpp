@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QNetworkInterface>
 #include <QDataStream>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
         infoLabel->setText("Server started on port 1234");
     } else {
         infoLabel->setText("Server failed to start");
+        qDebug() << "Error starting server:" << server->errorString();
     }
 
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
@@ -57,6 +59,12 @@ void MainWindow::on_newConnection()
     clients.append(clientSocket);
     playerCount++;
     connect(clientSocket, &QTcpSocket::readyRead, this, &MainWindow::on_readyRead);
+    connect(clientSocket, &QTcpSocket::disconnected, this, [this, clientSocket]() {
+        clients.removeOne(clientSocket);
+        playerCount--;
+        clientSocket->deleteLater();
+        qDebug() << "Client disconnected. Remaining clients:" << clients.size();
+    });
 
     // Repartir cartas al nuevo jugador
     playerHands.append(mazo.repartirCartas(7)); // Asegúrate de que esto devuelve QVector<QString>
@@ -68,7 +76,7 @@ void MainWindow::on_newConnection()
 
     // Iniciar el juego cuando todos los jugadores están conectados
     if (playerCount == 4) {
-        cartaTablero = mazo.tomarCarta(); // Asigna directamente la carta como QString
+        cartaTablero = mazo.tomarCarta();
         broadcastGameState();
     }
 }
@@ -76,6 +84,11 @@ void MainWindow::on_newConnection()
 void MainWindow::on_readyRead()
 {
     QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
+    if (!clientSocket) {
+        qDebug() << "Ready read called but sender is not a QTcpSocket.";
+        return;
+    }
+
     QByteArray data = clientSocket->readAll();
     processClientMessage(clientSocket, data);
 }
@@ -90,6 +103,11 @@ void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray
     QDataStream in(&msg, QIODevice::ReadOnly);
     int cardIndex;
     in >> cardIndex;
+
+    if (cardIndex < 0 || cardIndex >= playerHands[currentPlayerIndex].size()) {
+        qDebug() << "Invalid card index received:" << cardIndex;
+        return;
+    }
 
     // Actualizar el estado del juego: carta jugada y mano del jugador
     cartaTablero = playerHands[currentPlayerIndex][cardIndex];
@@ -106,10 +124,11 @@ void MainWindow::on_startButton_clicked()
 {
     if (playerCount < 4) {
         infoLabel->setText("Need 4 players to start the game!");
+        qDebug() << "Attempted to start game with less than 4 players.";
         return;
     }
     infoLabel->setText("Game started with " + QString::number(playerCount) + " players!");
-    cartaTablero = mazo.tomarCarta(); // Asigna directamente la carta como QString
+    cartaTablero = mazo.tomarCarta();
     broadcastGameState();
 }
 
@@ -122,6 +141,8 @@ void MainWindow::broadcastGameState()
     out << currentPlayerIndex; // Enviar el turno actual
 
     for (QTcpSocket *client : clients) {
-        client->write(gameState);
+        if (client->state() == QAbstractSocket::ConnectedState) {
+            client->write(gameState);
+        }
     }
 }

@@ -16,3 +16,4 @@ SOURCES += \
     ../QUnoClient/mazo.cpp
 
 CONFIG += c++17
+#mod
