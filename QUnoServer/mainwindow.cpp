@@ -55,6 +55,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_newConnection()
 {
+    if (playerCount >= 4) {
+        QTcpSocket *extraClient = server->nextPendingConnection();
+        extraClient->disconnectFromHost();
+        extraClient->deleteLater();
+        qDebug() << "Extra client tried to connect but game already has 4 players.";
+        return;
+    }
+
     QTcpSocket *clientSocket = server->nextPendingConnection();
     clients.append(clientSocket);
     playerCount++;
@@ -73,12 +81,6 @@ void MainWindow::on_newConnection()
                                 .arg(clientSocket->peerAddress().toString());
     playerInfo[clientSocket] = playerInfoStr;
     playersTextEdit->append(playerInfoStr);
-
-    // Iniciar el juego cuando todos los jugadores están conectados
-    if (playerCount == 4) {
-        cartaTablero = mazo.tomarCarta();
-        broadcastGameState();
-    }
 }
 
 void MainWindow::on_readyRead()
@@ -95,10 +97,6 @@ void MainWindow::on_readyRead()
 
 void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray &message)
 {
-    // Aquí se procesa el mensaje del cliente (por ejemplo, jugar una carta)
-    // Actualizar el estado del juego y enviar la actualización a todos los clientes
-
-    // Supongamos que el mensaje es simplemente el índice de la carta jugada
     QByteArray msg = message;  // Quita la const para poder usar QDataStream
     QDataStream in(&msg, QIODevice::ReadOnly);
     int cardIndex;
@@ -122,9 +120,9 @@ void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray
 
 void MainWindow::on_startButton_clicked()
 {
-    if (playerCount < 4) {
-        infoLabel->setText("Need 4 players to start the game!");
-        qDebug() << "Attempted to start game with less than 4 players.";
+    if (playerCount < 2) {
+        infoLabel->setText("Need at least 2 players to start the game!");
+        qDebug() << "Attempted to start game with less than 2 players.";
         return;
     }
     infoLabel->setText("Game started with " + QString::number(playerCount) + " players!");
