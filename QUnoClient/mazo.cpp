@@ -27,24 +27,26 @@ void Mazo::cargarCartas()
     }
 }
 
-QVector<QString> Mazo::repartirCartas(int cantidadCartas)
+QVector<QLabel*> Mazo::repartirCartas(int cantidadCartas)
 {
-    QVector<QString> mano;
+    QVector<QLabel*> mano;
     for (int i = 0; i < cantidadCartas; ++i) {
         int index = QRandomGenerator::global()->bounded(cartas.size());
-        mano.append(cartas[index]);
+        QLabel *carta = new QLabel(cartas[index], this);
+        mano.append(carta);
         cartas.remove(index); // Eliminar la carta del mazo después de repartirla
     }
     return mano;
 }
 
-QString Mazo::tomarCarta()
+QLabel* Mazo::tomarCarta()
 {
     if (cartas.isEmpty()) {
-        return ""; // Si el mazo está vacío, no se puede tomar carta
+        return nullptr; // Si el mazo está vacío, no se puede tomar carta
     }
     int index = QRandomGenerator::global()->bounded(cartas.size());
-    QString carta = cartas[index];
+    QLabel *carta = new QLabel(cartas[index], this);
     cartas.remove(index); // Eliminar la carta del mazo después de tomarla
     return carta;
 }
+

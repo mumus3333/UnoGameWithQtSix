@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QVector>
-#include <QString>
+#include <QLabel>
 #include <QRandomGenerator>
 
 class Mazo : public QWidget
@@ -14,10 +14,10 @@ public:
     explicit Mazo(QWidget *parent = nullptr);
 
     // Función para asignar cartas a un jugador
-    QVector<QString> repartirCartas(int cantidadCartas);
+    QVector<QLabel*> repartirCartas(int cantidadCartas);
 
     // Función para tomar una carta del mazo
-    QString tomarCarta();
+    QLabel* tomarCarta();
 
 private:
     QVector<QString> cartas; // Vector para almacenar las cartas como texto
@@ -25,3 +25,4 @@ private:
 };
 
 #endif // MAZO_H
+

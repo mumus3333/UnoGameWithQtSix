@@ -48,55 +48,29 @@ void MainWindow::on_connectButton_clicked()
 {
     QString serverIp = serverIpLineEdit->text();
     QString playerName = playerNameLineEdit->text();
-
     socket->connectToHost(serverIp, 1234); // Puerto fijo para el servidor
-
-    if (socket->waitForConnected(3000)) {
-        qDebug() << "Connected to server, sending player name...";
-        socket->write(playerName.toUtf8());
-    } else {
-        qDebug() << "Failed to connect to server: " << socket->errorString();
-        statusLabel->setText("Failed to connect to server");
-    }
+    socket->write(playerName.toUtf8());
 }
 
 void MainWindow::on_connected()
 {
     statusLabel->setText("Connected to server");
 }
+
 void MainWindow::on_readyRead()
 {
     QByteArray data = socket->readAll();
-    qDebug() << "Data received:" << data;
-
     if (data.startsWith("start")) {
         int playerCount = data.split(' ')[1].toInt();
-        qDebug() << "Starting game with" << playerCount << "players";
         showRulesScreen();
         QTimer::singleShot(5000, this, [this, playerCount] {
             setupGameScreen(playerCount);
             stackedWidget->setCurrentWidget(gameScreen);
         });
     } else {
-        QDataStream in(&data, QIODevice::ReadOnly);
-        QString tablero;
-        QVector<QVector<QString>> hands;
-        int turno;
-        in >> tablero >> hands >> turno;
-
-        if (!tablero.isEmpty() && !hands.isEmpty()) {
-            qDebug() << "Updating game screen with state:";
-            qDebug() << "Tablero:" << tablero << "Hands:" << hands << "Turno:" << turno;
-            updateGameScreen(tablero, hands, turno);
-        } else {
-            qDebug() << "Invalid game state received, displaying message instead";
-            statusLabel->setText(QString(data));
-        }
+        statusLabel->setText(data);
     }
 }
-
-
-
 
 void MainWindow::showRulesScreen()
 {
@@ -166,7 +140,8 @@ void MainWindow::setupGameScreen(int playerCount)
     passTurnButton->setEnabled(false);
 
     // Seleccionar una carta aleatoria para el tablero
-    cartaTablero = new QLabel(this); // Crear un QLabel
+    cartaTablero = mazo->tomarCarta();
+    cartaTablero->setParent(gameScreen);
     cartaTablero->setAlignment(Qt::AlignCenter);
     layout->addWidget(cartaTablero, 1, 1);
 
@@ -217,7 +192,7 @@ void MainWindow::displayPlayerHand()
     QString tableroNumber = getNumber(cartaTablero->text());
 
     for (int i = 0; i < playerHands[currentPlayerIndex].size(); ++i) {
-        QString cardText = playerHands[currentPlayerIndex][i];
+        QString cardText = playerHands[currentPlayerIndex][i]->text();
         QPushButton *cardButton = new QPushButton(cardText, this);
 
         QString cardColor = getColor(cardText);
@@ -253,7 +228,7 @@ void MainWindow::playerAction()
 void MainWindow::playCard(int cardIndex)
 {
     // Mover la carta seleccionada al tablero
-    cartaTablero->setText(playerHands[currentPlayerIndex][cardIndex]);
+    cartaTablero->setText(playerHands[currentPlayerIndex][cardIndex]->text());
 
     // Eliminar la carta de la mano del jugador
     delete playerHandCards[cardIndex];
@@ -267,12 +242,3 @@ void MainWindow::playCard(int cardIndex)
     endTurn();
 }
 
-void MainWindow::updateGameScreen(const QString &tablero, QVector<QVector<QString>> &hands, int turno)
-{
-    cartaTablero->setText(tablero);
-    playerHands = hands;
-    currentPlayerIndex = turno;
-
-    displayPlayerHand();
-    startTurn();
-}

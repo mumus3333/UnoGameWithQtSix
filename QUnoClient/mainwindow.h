@@ -32,7 +32,6 @@ private slots:
     void displayPlayerHand();
     void playerAction(); // Ejemplo de una acción que realiza el jugador
     void playCard(int cardIndex); // Función para jugar una carta específica
-    void updateGameScreen(const QString &tablero, QVector<QVector<QString>> &hands, int turno);
 
 private:
     QTcpSocket *socket;
@@ -46,7 +45,7 @@ private:
     QWidget *gameScreen;
 
     Mazo *mazo; // Instancia de la clase Mazo
-    QVector<QVector<QString>> playerHands; // Almacena las cartas de cada jugador
+    QVector<QVector<QLabel*>> playerHands; // Almacena las cartas de cada jugador
     QVector<QLabel*> playerLabels; // Almacena las etiquetas de los jugadores
     QVector<QLabel*> turnLabels; // Vector para almacenar los QLabel de turnos
     QWidget *playerHandWidget; // Widget para mostrar las cartas del jugador
@@ -67,3 +66,4 @@ private:
 };
 
 #endif // MAINWINDOW_H
+
