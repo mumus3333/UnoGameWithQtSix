@@ -101,7 +101,9 @@ void MainWindow::on_readyRead()
 }
 
 void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray &message) {
-    QDataStream in(&message, QIODevice::ReadOnly);
+    QByteArray data = message; // Copiamos el mensaje a una variable no constante
+    QDataStream in(&data, QIODevice::ReadOnly);
+    
     int cardIndex;
     in >> cardIndex;
 
@@ -149,4 +151,5 @@ void MainWindow::broadcastGameState() {
     }
 }
 
+//lll
 
