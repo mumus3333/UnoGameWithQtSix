@@ -8,8 +8,7 @@ rm *.o
 rm Makefile 
 # Imprimir informacion
 echo "Generar proyecto para carpeta $NombreCarpeta"
-breCarpeta.pro 
-echo "LIBS += -lGL -lGLU -lglut" >> $NombreCarpeta.pro 
+
 # Hacer QMAKE para generar el archivo Makefile
 qmake6 
 # Ejecutar el archivo makefile
