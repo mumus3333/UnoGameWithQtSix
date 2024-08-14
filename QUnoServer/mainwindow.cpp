@@ -73,23 +73,13 @@ void MainWindow::on_newConnection() {
         qDebug() << "Client disconnected. Remaining clients:" << clients.size();
     });
 
-    // Leer el nombre del jugador
-    QByteArray data = clientSocket->readAll();
-    QString playerName = QString::fromUtf8(data);
-    qDebug() << "New client connected:" << playerName;
-
-    playerHands.append(mazo.repartirCartas(7)); // Repartir cartas al nuevo jugador
-    QString playerInfoStr = QString("Player %1 | %2")
-                                .arg(playerCount)
-                                .arg(playerName);
-    playerInfo[clientSocket] = playerInfoStr;
-    playersTextEdit->append(playerInfoStr);
+    qDebug() << "New client connected, awaiting player name...";
 }
 
 
 
-void MainWindow::on_readyRead()
-{
+
+void MainWindow::on_readyRead() {
     QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
     if (!clientSocket) {
         qDebug() << "Ready read called but sender is not a QTcpSocket.";
@@ -97,8 +87,25 @@ void MainWindow::on_readyRead()
     }
 
     QByteArray data = clientSocket->readAll();
-    processClientMessage(clientSocket, data);
+
+    if (playerInfo.contains(clientSocket)) {
+        // Si el jugador ya ha enviado su nombre, procesamos su acción
+        processClientMessage(clientSocket, data);
+    } else {
+        // Primer mensaje del cliente debería ser su nombre
+        QString playerName = QString::fromUtf8(data);
+        qDebug() << "Received player name:" << playerName;
+
+        playerHands.append(mazo.repartirCartas(7)); // Repartir cartas al nuevo jugador
+        QString playerInfoStr = QString("Player %1 | %2 | %3")
+                                    .arg(playerCount)
+                                    .arg(playerName)
+                                    .arg(clientSocket->peerAddress().toString());
+        playerInfo[clientSocket] = playerInfoStr;
+        playersTextEdit->append(playerInfoStr);
+    }
 }
+
 
 void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray &message) {
     QByteArray data = message; // Copiamos el mensaje a una variable no constante
