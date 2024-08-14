@@ -67,6 +67,8 @@ void MainWindow::on_connected()
 
 void MainWindow::on_readyRead() {
     QByteArray data = socket->readAll();
+    qDebug() << "Data received from server:" << data;
+
     QDataStream in(&data, QIODevice::ReadOnly);
     
     QString tablero;
@@ -76,12 +78,13 @@ void MainWindow::on_readyRead() {
     in >> tablero >> hands >> turno;
 
     if (in.status() == QDataStream::Ok) {
+        qDebug() << "Game state parsed successfully";
         updateGameScreen(tablero, hands, turno);
-        qDebug() << "Received game state: " << tablero << hands << turno;
     } else {
-        qDebug() << "Error reading game state from server.";
+        qDebug() << "Error parsing game state";
     }
 }
+
 
 
 
