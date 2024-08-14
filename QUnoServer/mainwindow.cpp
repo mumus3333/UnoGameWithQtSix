@@ -172,6 +172,27 @@ void MainWindow::broadcastGameState()
     }
 }
 
+void MainWindow::updateGameScreen(const QString &tablero, const QVector<QVector<QString>> &hands, int turno)
+{
+    // Actualiza el tablero con la carta actual
+    // Por ejemplo, si tienes un QLabel para mostrar la carta del tablero
+    // QLabel *tableroLabel = new QLabel(this);  // Asume que tienes un QLabel para el tablero
+    // tableroLabel->setText(tablero);
+
+    // Actualiza las manos de los jugadores
+    // Aquí puedes iterar sobre las manos de los jugadores y mostrar las cartas en la interfaz
+    for (int i = 0; i < hands.size(); ++i) {
+        // Suponiendo que tienes una manera de mostrar las cartas de cada jugador
+        // Por ejemplo, podrías tener una lista de QTextEdit o QLabel para cada jugador
+        qDebug() << "Player" << i + 1 << "hand:" << hands[i];
+    }
+
+    // Actualiza el turno actual
+    // Aquí podrías actualizar un QLabel que muestra de quién es el turno
+    qDebug() << "It's player" << turno + 1 << "'s turn.";
+}
+
+
 
 
 //lll

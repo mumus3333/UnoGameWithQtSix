@@ -19,6 +19,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void updateGameScreen(const QString &tablero, const QVector<QVector<QString>> &hands, int turno);
 
 private slots:
     void on_newConnection();
