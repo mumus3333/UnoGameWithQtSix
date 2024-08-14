@@ -64,46 +64,36 @@ void MainWindow::on_connected()
 {
     statusLabel->setText("Connected to server");
 }
-
 void MainWindow::on_readyRead()
 {
     QByteArray data = socket->readAll();
+    qDebug() << "Data received:" << data;
 
-    // Verificamos si el paquete recibido es un comando de inicio de juego
     if (data.startsWith("start")) {
-        // Extraemos la cantidad de jugadores desde el mensaje
         int playerCount = data.split(' ')[1].toInt();
-
-        // Mostramos la pantalla de reglas
+        qDebug() << "Starting game with" << playerCount << "players";
         showRulesScreen();
-
-        // Configuramos la pantalla del juego después de 5 segundos
         QTimer::singleShot(5000, this, [this, playerCount] {
             setupGameScreen(playerCount);
             stackedWidget->setCurrentWidget(gameScreen);
         });
     } else {
-        // Intentamos deserializar el estado del juego
         QDataStream in(&data, QIODevice::ReadOnly);
-
         QString tablero;
         QVector<QVector<QString>> hands;
         int turno;
-
-        // Intentamos leer el estado del juego desde el flujo de datos
         in >> tablero >> hands >> turno;
 
-        // Si se reciben datos válidos, actualizamos la pantalla del juego
         if (!tablero.isEmpty() && !hands.isEmpty()) {
+            qDebug() << "Updating game screen with state:";
+            qDebug() << "Tablero:" << tablero << "Hands:" << hands << "Turno:" << turno;
             updateGameScreen(tablero, hands, turno);
         } else {
-            // Si no se recibe un estado de juego válido, mostramos el mensaje como estado
+            qDebug() << "Invalid game state received, displaying message instead";
             statusLabel->setText(QString(data));
         }
     }
 }
-
-
 
 
 
