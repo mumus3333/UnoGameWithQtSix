@@ -44,12 +44,11 @@ MainWindow::~MainWindow()
     // Los widgets se eliminarán automáticamente
 }
 
-void MainWindow::on_connectButton_clicked()
-{
+void MainWindow::on_connectButton_clicked() {
     QString serverIp = serverIpLineEdit->text();
     QString playerName = playerNameLineEdit->text();
     socket->connectToHost(serverIp, 1234); // Puerto fijo para el servidor
-    socket->write(playerName.toUtf8());
+    socket->write(playerName.toUtf8()); // Aquí se envía el nombre del jugador
 }
 
 void MainWindow::on_connected()
@@ -57,11 +56,10 @@ void MainWindow::on_connected()
     statusLabel->setText("Connected to server");
 }
 
-void MainWindow::on_readyRead()
-{
+void MainWindow::on_readyRead() {
     QByteArray data = socket->readAll();
     QDataStream in(&data, QIODevice::ReadOnly);
-    
+
     QString tablero;
     QVector<QVector<QString>> hands;
     int turno;
@@ -72,6 +70,7 @@ void MainWindow::on_readyRead()
 
     updateGameScreen(tablero, hands, turno);
 }
+
 
 void MainWindow::showRulesScreen()
 {

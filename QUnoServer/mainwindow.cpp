@@ -53,8 +53,7 @@ MainWindow::~MainWindow()
     // Los widgets se eliminarán automáticamente
 }
 
-void MainWindow::on_newConnection()
-{
+void MainWindow::on_newConnection() {
     if (playerCount >= 4) {
         QTcpSocket *extraClient = server->nextPendingConnection();
         extraClient->disconnectFromHost();
@@ -74,14 +73,19 @@ void MainWindow::on_newConnection()
         qDebug() << "Client disconnected. Remaining clients:" << clients.size();
     });
 
-    // Repartir cartas al nuevo jugador
-    playerHands.append(mazo.repartirCartas(7)); // Asegúrate de que esto devuelve QVector<QString>
-    QString playerInfoStr = QString("Player %1 | %2")
+    // Leer el nombre del jugador
+    QByteArray data = clientSocket->readAll();
+    QString playerName = QString::fromUtf8(data);
+
+    playerHands.append(mazo.repartirCartas(7)); // Repartir cartas al nuevo jugador
+    QString playerInfoStr = QString("Player %1 | %2 | %3")
                                 .arg(playerCount)
+                                .arg(playerName)
                                 .arg(clientSocket->peerAddress().toString());
     playerInfo[clientSocket] = playerInfoStr;
     playersTextEdit->append(playerInfoStr);
 }
+
 
 void MainWindow::on_readyRead()
 {
@@ -130,8 +134,7 @@ void MainWindow::on_startButton_clicked()
     broadcastGameState();
 }
 
-void MainWindow::broadcastGameState()
-{
+void MainWindow::broadcastGameState() {
     QByteArray gameState;
     QDataStream out(&gameState, QIODevice::WriteOnly);
     out << cartaTablero; // Enviar la carta del tablero como QString
@@ -144,3 +147,4 @@ void MainWindow::broadcastGameState()
         }
     }
 }
+
