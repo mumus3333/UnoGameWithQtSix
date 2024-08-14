@@ -79,30 +79,31 @@ void MainWindow::on_newConnection() {
 
 
 
-void MainWindow::on_readyRead() {
-    QTcpSocket *clientSocket = qobject_cast<QTcpSocket*>(sender());
-    if (!clientSocket) {
-        qDebug() << "Ready read called but sender is not a QTcpSocket.";
-        return;
-    }
+void MainWindow::on_readyRead()
+{
+    QByteArray data = socket->readAll();
+    qDebug() << "Received data from server:" << data;
 
-    QByteArray data = clientSocket->readAll();
+    QDataStream in(&data, QIODevice::ReadOnly);
+    
+    QString tablero;
+    QVector<QVector<QString>> hands;
+    int turno;
 
-    if (playerInfo.contains(clientSocket)) {
-        // Si el jugador ya ha enviado su nombre, procesamos su acción
-        processClientMessage(clientSocket, data);
+    in >> tablero;
+    in >> hands;
+    in >> turno;
+
+    qDebug() << "Tablero:" << tablero;
+    qDebug() << "Manos de jugadores:" << hands;
+    qDebug() << "Turno actual:" << turno;
+
+    // Aquí puedes agregar validaciones adicionales para verificar si los datos son válidos
+
+    if (!tablero.isEmpty() && !hands.isEmpty()) {
+        updateGameScreen(tablero, hands, turno);
     } else {
-        // Primer mensaje del cliente debería ser su nombre
-        QString playerName = QString::fromUtf8(data);
-        qDebug() << "Received player name:" << playerName;
-
-        playerHands.append(mazo.repartirCartas(7)); // Repartir cartas al nuevo jugador
-        QString playerInfoStr = QString("Player %1 | %2 | %3")
-                                    .arg(playerCount)
-                                    .arg(playerName)
-                                    .arg(clientSocket->peerAddress().toString());
-        playerInfo[clientSocket] = playerInfoStr;
-        playersTextEdit->append(playerInfoStr);
+        qDebug() << "Invalid game state received!";
     }
 }
 
