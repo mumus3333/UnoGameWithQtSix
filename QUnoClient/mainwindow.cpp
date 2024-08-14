@@ -44,11 +44,20 @@ MainWindow::~MainWindow()
     // Los widgets se eliminarán automáticamente
 }
 
-void MainWindow::on_connectButton_clicked() {
+void MainWindow::on_connectButton_clicked()
+{
     QString serverIp = serverIpLineEdit->text();
     QString playerName = playerNameLineEdit->text();
+
     socket->connectToHost(serverIp, 1234); // Puerto fijo para el servidor
-    socket->write(playerName.toUtf8()); // Aquí se envía el nombre del jugador
+
+    if (socket->waitForConnected(3000)) {
+        qDebug() << "Connected to server, sending player name...";
+        socket->write(playerName.toUtf8());
+    } else {
+        qDebug() << "Failed to connect to server: " << socket->errorString();
+        statusLabel->setText("Failed to connect to server");
+    }
 }
 
 void MainWindow::on_connected()
@@ -67,6 +76,11 @@ void MainWindow::on_readyRead() {
     in >> tablero;
     in >> hands;
     in >> turno;
+
+    if (turno < 0 || turno >= totalPlayers) {
+        qDebug() << "Invalid player turn index received:" << turno;
+        return;
+    }
 
     updateGameScreen(tablero, hands, turno);
 }

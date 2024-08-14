@@ -76,15 +76,16 @@ void MainWindow::on_newConnection() {
     // Leer el nombre del jugador
     QByteArray data = clientSocket->readAll();
     QString playerName = QString::fromUtf8(data);
+    qDebug() << "New client connected:" << playerName;
 
     playerHands.append(mazo.repartirCartas(7)); // Repartir cartas al nuevo jugador
-    QString playerInfoStr = QString("Player %1 | %2 | %3")
+    QString playerInfoStr = QString("Player %1 | %2")
                                 .arg(playerCount)
-                                .arg(playerName)
-                                .arg(clientSocket->peerAddress().toString());
+                                .arg(playerName);
     playerInfo[clientSocket] = playerInfoStr;
     playersTextEdit->append(playerInfoStr);
 }
+
 
 
 void MainWindow::on_readyRead()
@@ -99,10 +100,8 @@ void MainWindow::on_readyRead()
     processClientMessage(clientSocket, data);
 }
 
-void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray &message)
-{
-    QByteArray msg = message;  // Quita la const para poder usar QDataStream
-    QDataStream in(&msg, QIODevice::ReadOnly);
+void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray &message) {
+    QDataStream in(&message, QIODevice::ReadOnly);
     int cardIndex;
     in >> cardIndex;
 
@@ -121,6 +120,7 @@ void MainWindow::processClientMessage(QTcpSocket *clientSocket, const QByteArray
     // Sincronizar con los clientes
     broadcastGameState();
 }
+
 
 void MainWindow::on_startButton_clicked()
 {
@@ -144,7 +144,9 @@ void MainWindow::broadcastGameState() {
     for (QTcpSocket *client : clients) {
         if (client->state() == QAbstractSocket::ConnectedState) {
             client->write(gameState);
+            client->flush();
         }
     }
 }
+
 
