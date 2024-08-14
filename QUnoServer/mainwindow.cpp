@@ -143,20 +143,26 @@ void MainWindow::on_startButton_clicked()
     broadcastGameState();
 }
 
-void MainWindow::broadcastGameState() {
+void MainWindow::broadcastGameState()
+{
     QByteArray gameState;
     QDataStream out(&gameState, QIODevice::WriteOnly);
     out << cartaTablero; // Enviar la carta del tablero como QString
     out << playerHands;  // Enviar todas las manos de los jugadores
     out << currentPlayerIndex; // Enviar el turno actual
 
-    qDebug() << "Broadcasting game state:" << cartaTablero << playerHands << currentPlayerIndex;
-
     for (QTcpSocket *client : clients) {
         if (client->state() == QAbstractSocket::ConnectedState) {
-            client->write(gameState);
-            client->flush();  // Asegúrate de que los datos se envíen inmediatamente
-            qDebug() << "Sent game state to client:" << client->peerAddress().toString();
+            qint64 bytesWritten = client->write(gameState);
+            if (bytesWritten == -1) {
+                qDebug() << "Error writing to client:" << client->errorString();
+            } else if (bytesWritten < gameState.size()) {
+                qDebug() << "Only part of the game state was sent to the client.";
+            } else {
+                qDebug() << "Game state successfully sent to client:" << client->peerAddress().toString();
+            }
+        } else {
+            qDebug() << "Client not in a connected state, unable to send game state.";
         }
     }
 }
