@@ -68,22 +68,21 @@ void MainWindow::on_connected()
 void MainWindow::on_readyRead() {
     QByteArray data = socket->readAll();
     QDataStream in(&data, QIODevice::ReadOnly);
-
+    
     QString tablero;
     QVector<QVector<QString>> hands;
     int turno;
 
-    in >> tablero;
-    in >> hands;
-    in >> turno;
+    in >> tablero >> hands >> turno;
 
-    if (turno < 0 || turno >= totalPlayers) {
-        qDebug() << "Invalid player turn index received:" << turno;
-        return;
+    if (in.status() == QDataStream::Ok) {
+        updateGameScreen(tablero, hands, turno);
+        qDebug() << "Received game state: " << tablero << hands << turno;
+    } else {
+        qDebug() << "Error reading game state from server.";
     }
-
-    updateGameScreen(tablero, hands, turno);
 }
+
 
 
 void MainWindow::showRulesScreen()

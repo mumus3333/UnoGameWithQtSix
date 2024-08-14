@@ -150,13 +150,17 @@ void MainWindow::broadcastGameState() {
     out << playerHands;  // Enviar todas las manos de los jugadores
     out << currentPlayerIndex; // Enviar el turno actual
 
+    qDebug() << "Broadcasting game state:" << cartaTablero << playerHands << currentPlayerIndex;
+
     for (QTcpSocket *client : clients) {
         if (client->state() == QAbstractSocket::ConnectedState) {
             client->write(gameState);
-            client->flush();
+            client->flush();  // Asegúrate de que los datos se envíen inmediatamente
+            qDebug() << "Sent game state to client:" << client->peerAddress().toString();
         }
     }
 }
+
 
 //lll
 
