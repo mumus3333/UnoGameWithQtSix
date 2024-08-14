@@ -77,13 +77,17 @@ void MainWindow::on_readyRead() {
 
     in >> tablero >> hands >> turno;
 
-    if (in.status() == QDataStream::Ok) {
-        qDebug() << "Game state parsed successfully";
-        updateGameScreen(tablero, hands, turno);
-    } else {
-        qDebug() << "Error parsing game state";
+    if (in.status() != QDataStream::Ok) {
+        qDebug() << "Error parsing game state data";
+        return;
     }
+
+    qDebug() << "Game state received: " << tablero << hands << turno;
+
+    // Procede a actualizar la interfaz gráfica
+    updateGameScreen(tablero, hands, turno);
 }
+
 
 
 
